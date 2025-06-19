@@ -32,6 +32,9 @@ public class Stmt implements Node {
             case OBJECT:
                 stmt = new Decl();
                 break;
+            case BEGIN:
+                stmt = new Call();
+                break;
             default:
                 throw new RuntimeException("ERROR in statement: unexpected token " + token);
         }
@@ -65,6 +68,8 @@ public void execute() {
         ((Read) stmt).execute();
     } else if (stmt instanceof Decl) {
         ((Decl) stmt).execute();
+    } else if (stmt instanceof Call) {
+        ((Call) stmt).execute();
     } else {
         throw new UnsupportedOperationException("Unrecognized statement type: " + stmt.getClass());
     }

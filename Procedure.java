@@ -13,12 +13,10 @@ public class Procedure implements Node {
         identifier = Node.expectIdAndGet(s, "procedure declaration");
         Node.expectToken(s, Core.IS, "procedure declaration");
 
-
-        if (s.currentToken() == Core.INTEGER || s.currentToken() == Core.OBJECT) {
+        if (s.currentToken() == Core.INTEGER || s.currentToken() == Core.OBJECT || s.currentToken() == Core.PROCEDURE) {
             ds = new DeclSeq();
             ds.parse(s);
         }
-
 
         Node.expectToken(s, Core.BEGIN, "procedure body");
 
