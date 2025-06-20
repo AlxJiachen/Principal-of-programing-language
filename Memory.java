@@ -167,15 +167,21 @@ public static void write(String id, int value) {
     // EX: obj1 : obj2; id1 = obj1, id2 = obj2.
     public static void alias(String id1, String id2) {
         Map<String, Integer> target = null;
+        boolean found = false;
 
         for (int i = objScopes.size() - 1; i >= 0; i--) {
             if (objScopes.get(i).containsKey(id2)) {
+                if (i == objScopes.size() - 1 && id1.equals(id2)) {
+                    // skip the just-declared variable in the current scope
+                    continue;
+                }
                 target = objScopes.get(i).get(id2);
+                found = true;
                 break;
             }
         }
 
-        if (target == null) {
+        if (!found) {
             System.out.println("ERROR: object variable '" + id2 + "' not found");
             System.exit(1);
         }
