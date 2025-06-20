@@ -10,13 +10,14 @@ public class StmtSeq implements Node {
 
 private boolean isNextStmt(CoreScanner s) {
     Core t = s.currentToken();
-    return t == Core.ID              
-        || t == Core.IF            
-        || t == Core.FOR           
-        || t == Core.PRINT          
-        || t == Core.READ           
-        || t == Core.INTEGER        
-        || t == Core.OBJECT;        
+    return t == Core.ID
+        || t == Core.IF
+        || t == Core.FOR
+        || t == Core.PRINT
+        || t == Core.READ
+        || t == Core.INTEGER
+        || t == Core.OBJECT
+        || t == Core.BEGIN;
 }
 
 
