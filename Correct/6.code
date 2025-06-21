@@ -1,20 +1,16 @@
-procedure c6 is
-	procedure x (object x, y ) is
-		if y<1 then
-			x = 0; 
-		else 
-			y = y-1; 
-			begin x(x, y); 
-		end
+procedure t6 is
+	procedure add(object a, b) is
+		object n;
+		a = a+b;
+		b : n;
 	end
-	object a;
-	object b;
+	object x;
+	object y;
 begin
-	a = new object('default', 1);
-	b = new object('default', 1);
-	a = 10;
-	b = 5;
-	begin x(a, b);
-	print(a);
-	print(b);
+	x = new object('default', 1);
+	x['default'] = 1;
+	y = new object('default', 1);
+	y = 1+x;
+	begin add(x, y);
+	print(x);
 end

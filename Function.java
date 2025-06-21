@@ -3,21 +3,21 @@ import java.util.*;
 
 public class Function implements Node {
     private String name;
-    private final List<String> params = new ArrayList<>();
     private StmtSeq body;
+    private final List<String> params = new ArrayList<>();
 
     @Override
     public void parse(CoreScanner s) throws IOException {
-        Node.expectToken(s, Core.PROCEDURE, "procedure definition");
-        name = Node.expectIdAndGet(s, "procedure definition");
-        Node.expectToken(s, Core.LPAREN, "procedure definition");
-        Node.expectToken(s, Core.OBJECT, "procedure definition");
+        Node.expectToken(s, Core.PROCEDURE, "procedure parsing");
+        name = Node.expectIdAndGet(s, "procedure parsing");
+        Node.expectToken(s, Core.LPAREN, "procedure parsing");
+        Node.expectToken(s, Core.OBJECT, "procedure parsing");
         parseParams(s);
-        Node.expectToken(s, Core.RPAREN, "procedure definition");
-        Node.expectToken(s, Core.IS, "procedure definition");
+        Node.expectToken(s, Core.RPAREN, "procedure parsing");
+        Node.expectToken(s, Core.IS, "procedure parsing");
         body = new StmtSeq();
         body.parse(s);
-        Node.expectToken(s, Core.END, "procedure definition");
+        Node.expectToken(s, Core.END, "procedure parsing");
         ProcedureTable.register(name, this);
     }
 
@@ -63,7 +63,7 @@ public class Function implements Node {
     }
 
     public void execute(List<String> args) {
-        Memory.enterScope();
+        Memory.pushFrame();
         for (int i = 0; i < params.size(); i++) {
             String formal = params.get(i);
             String actual = args.get(i);
@@ -71,6 +71,6 @@ public class Function implements Node {
             Memory.alias(formal, actual);
         }
         body.execute();
-        Memory.exitScope();
+        Memory.popFrame();
     }
 }

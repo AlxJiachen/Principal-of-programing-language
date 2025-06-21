@@ -1,10 +1,16 @@
-procedure c4 is
-	procedure A (object r ) is 
-		r = 0; 
-	end 
-	object x;
+procedure t4 is
+	object a;
+	object b;
+	object c;
+	procedure A(object x) is
+		b : x;
+		c : x;
+		print(x['default']);
+	end
 begin
-	x = new object('default', 1);
-	x = 1;
-	print(4);
+	a = new object('default', 1);
+	b = new object('default', 1);
+	c = new object('default', 1);
+	a['default'] = 99;
+	begin A(a);
 end

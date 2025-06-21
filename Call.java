@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Call implements Node {
     private String name;
-    private final List<String> args = new ArrayList<>();
+    private final List<String> params = new ArrayList<>();
 
     @Override
     public void parse(CoreScanner s) throws IOException {
@@ -11,17 +11,17 @@ public class Call implements Node {
         name = Node.expectIdAndGet(s, "procedure call");
         Node.expectToken(s, Core.LPAREN, "procedure call");
         if (s.currentToken() != Core.RPAREN) {
-            parseArgs(s);
+            parseParams(s);
         }
         Node.expectToken(s, Core.RPAREN, "procedure call");
         Node.expectToken(s, Core.SEMICOLON, "procedure call");
     }
 
-    private void parseArgs(CoreScanner s) throws IOException {
-        args.add(Node.expectIdAndGet(s, "actual parameter"));
+    private void parseParams(CoreScanner s) throws IOException {
+        params.add(Node.expectIdAndGet(s, "formal parameter"));
         while (s.currentToken() == Core.COMMA) {
             s.nextToken();
-            args.add(Node.expectIdAndGet(s, "actual parameter"));
+            params.add(Node.expectIdAndGet(s, "formal parameter"));
         }
     }
 
@@ -29,9 +29,9 @@ public class Call implements Node {
     public void print(int indent) {
         printIndent(indent);
         System.out.print("begin " + name + "(");
-        for (int i = 0; i < args.size(); i++) {
+        for (int i = 0; i < params.size(); i++) {
             if (i > 0) System.out.print(", ");
-            System.out.print(args.get(i));
+            System.out.print(params.get(i));
         }
         System.out.println(");");
     }
@@ -42,10 +42,10 @@ public class Call implements Node {
             throw new RuntimeException("Semantic Error: procedure '" + name + "' is not declared.");
         }
         Function f = ProcedureTable.lookup(name);
-        if (f.paramCount() != args.size()) {
+        if (f.paramCount() != params.size()) {
             throw new RuntimeException("Semantic Error: procedure '" + name + "' expects " + f.paramCount() + " arguments.");
         }
-        for (String a : args) {
+        for (String a : params) {
             if (!scope.containsKey(a)) {
                 throw new RuntimeException("Semantic Error: argument '" + a + "' not declared in scope.");
             }
@@ -61,6 +61,6 @@ public class Call implements Node {
             System.out.println("ERROR: procedure '" + name + "' not found");
             System.exit(1);
         }
-        f.execute(args);
+        f.execute(params);
     }
 }

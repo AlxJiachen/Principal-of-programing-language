@@ -1,15 +1,10 @@
-procedure c3 is
-	procedure x (object a, b ) is 
-		a = b; 
-	end 
-	object x;
+procedure t3 is
+	integer x;
 	object y;
+	object z;
 begin
-	x = new object('default', 1);
-	y = new object('default', 1);
-	x = 1;
-	y = 2;
-	begin x(x, y);
-	print(x);
-	print(y);
+	y = new object('a', 1);
+	y['a'] = 10;
+	z : y;
+	print(z['a']);
 end

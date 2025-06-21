@@ -1,8 +1,8 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 public class DeclSeq implements Node {
     private final List<Decl> decls = new ArrayList<>();
@@ -46,9 +46,7 @@ public void parse(CoreScanner s) throws IOException {
 
 
 public void execute() {
-    for (Function f : funcs) {
-        // functions are not executed until called
-    }
+
     for (Decl d : decls) {
         d.execute();
     }

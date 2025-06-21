@@ -1,23 +1,17 @@
-procedure c8 is
-	procedure A (object r, s ) is
-		r = 3; 
-		s = 5; 
+procedure t8 is
+	procedure A(object r) is
+		object n;
+		if r < 1 then
+			print(r);
+		else
+			n = new object('default', 1);
+			n['default'] = r-1;
+			begin A(n);
+		end
 	end
-	procedure B (object r, s ) is
-		r = 7; 
-		s = 11; 
-	end
+	object a;
 begin
-	object x;
-	object y;
-	x = new object('default', 1);
-	y = new object('default', 1);
-	x = 1;
-	y = 1;
-	begin A(x, y);
-	print(x);
-	print(y);
-	begin B(x, y);
-	print(x);
-	print(y);
+	a = new object('default', 1);
+	a['default'] = 5;
+	begin A(a);
 end

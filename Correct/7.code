@@ -1,15 +1,13 @@
-procedure c7 is
-	procedure A (object r ) is 
-		r = 9;
-	end
-	procedure B (object s ) is
-		s = 7;
-		begin A(s);
-	end
+procedure t7 is
+	integer x;
+	integer y;
+	object a;
+	object b;
 begin
-	object q;
-	q = new object('default', 1);
-	q = 5;
-	begin B(q);
-	print(q);
+	x = 10;
+	for (y=1; y < x; y+1) do
+		a : b;
+		a = new object('default', 1);
+		a['default'] = 100;
+	end
 end
