@@ -58,15 +58,15 @@ ss.semanticCheck(localScope);
 
 
 public void execute() {
-    Memory.enterScope(); 
+    Memory.pushFrame();
 
     if (ds != null) {
-        ds.execute(); 
+        ds.execute();
     }
 
     ss.execute();
 
-    Memory.exitScope();
+    Memory.popFrame();
 }
 
 
