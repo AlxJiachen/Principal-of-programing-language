@@ -63,7 +63,7 @@ public class Function implements Node {
     }
 
     public void execute(List<String> args) {
-        Memory.enterScope();
+        Memory.pushFrame();
         for (int i = 0; i < params.size(); i++) {
             String formal = params.get(i);
             String actual = args.get(i);
@@ -71,6 +71,6 @@ public class Function implements Node {
             Memory.alias(formal, actual);
         }
         body.execute();
-        Memory.exitScope();
+        Memory.popFrame();
     }
 }
