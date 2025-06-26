@@ -6,6 +6,7 @@ public class Procedure implements Node {
     private String identifier;
     private DeclSeq ds;
     private StmtSeq ss;
+    private StmtSeq myp;
 
     @Override
     public void parse(CoreScanner s) throws IOException {
@@ -65,7 +66,7 @@ public void execute() {
     }
 
     ss.execute();
-
+// tset purpose dlksahdksahfksahkf
     Memory.popFrame();
 }
 
