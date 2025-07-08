@@ -105,7 +105,9 @@ public class Memory {
     }
 
     public static int read(String id) {
-        id = resolveAliasName(id);
+        // direct lookup without following aliases
+        Integer val = null;
+        Map<String, Integer> obj = null;
         for (int f = frames.size() - 1; f >= 0; f--) {
             Frame frame = frames.get(f);
             for (int i = frame.intScopes.size() - 1; i >= 0; i--) {
@@ -114,25 +116,27 @@ public class Memory {
                     return scope.get(id);
                 }
             }
-        }
-        for (int f = frames.size() - 1; f >= 0; f--) {
-            Frame frame = frames.get(f);
             for (int i = frame.objScopes.size() - 1; i >= 0; i--) {
                 Map<String, Map<String, Integer>> scope = frame.objScopes.get(i);
                 if (scope.containsKey(id)) {
-                    Map<String, Integer> map = scope.get(id);
-                    if (map == null) {
+                    obj = scope.get(id);
+                    if (obj == null) {
                         System.out.println("ERROR: object variable '" + id + "' is null");
                         System.exit(1);
                     }
-                    if (map.size() == 1) {
-                        return map.values().iterator().next();
+                    if (obj.size() == 1) {
+                        return obj.values().iterator().next();
                     } else {
                         System.out.println("ERROR: ambiguous default key in object '" + id + "'");
                         System.exit(1);
                     }
                 }
             }
+        }
+
+        String resolved = resolveAliasName(id);
+        if (!resolved.equals(id)) {
+            return read(resolved);
         }
         System.out.println("ERROR: variable '" + id + "' not found");
         System.exit(1);
@@ -227,17 +231,20 @@ public class Memory {
         Map<String, Integer> newMap = new HashMap<>();
         newMap.put(defaultKey, value);
 
-        Map<String, Map<String, Integer>> scope = currentFrame().objScopes.peek();
-        if (!scope.containsKey(id)) {
-            System.out.println("ERROR: variable '" + id + "' not declared");
-            System.exit(1);
+        Frame frame = currentFrame();
+        for (int i = frame.objScopes.size() - 1; i >= 0; i--) {
+            Map<String, Map<String, Integer>> scope = frame.objScopes.get(i);
+            if (scope.containsKey(id)) {
+                scope.put(id, newMap);
+                reportGC();
+                return;
+            }
         }
-        scope.put(id, newMap);
-        reportGC();
+        System.out.println("ERROR: variable '" + id + "' not declared");
+        System.exit(1);
     }
 
     public static void alias(String id1, String id2) {
-        id1 = resolveAliasName(id1);
         id2 = resolveAliasName(id2);
 
         Map<String, Integer> target = null;
@@ -276,6 +283,20 @@ public class Memory {
         if (!set) {
             System.out.println("ERROR: variable '" + id1 + "' not declared");
             System.exit(1);
+        }
+
+        String mapped = aliasMaps.peek().get(id1);
+        if (mapped != null) {
+            for (int f = frames.size() - 1; f >= 0; f--) {
+                Frame frame = frames.get(f);
+                for (int i = frame.objScopes.size() - 1; i >= 0; i--) {
+                    Map<String, Map<String, Integer>> scope = frame.objScopes.get(i);
+                    if (scope.containsKey(mapped)) {
+                        scope.put(mapped, target);
+                        break;
+                    }
+                }
+            }
         }
 
         aliasMaps.peek().put(id1, id2);

@@ -64,10 +64,13 @@ public class Function implements Node {
 
     public void execute(List<String> args) {
         Memory.pushFrame();
+        for (String formal : params) {
+            Memory.declareObject(formal);
+        }
         for (int i = 0; i < params.size(); i++) {
             String formal = params.get(i);
             String actual = args.get(i);
-            Memory.bindAlias(formal, actual);
+            Memory.alias(formal, actual);
         }
         body.execute();
         Memory.popFrame();
