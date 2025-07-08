@@ -114,7 +114,9 @@ tional details on academic integrity are available from the Committee on Academi
 conduct (see http://oaa.osu.edu/coamresources.html). If you have any questions ab out uni-
 versity p olicies or what constitutes academic misconduct in this course, please contact me
 immediately.
-3
 
-4
+Please note this is a language like C or Java where whitespaces have no meaning, and whitespace can be 
+inserted between keywords, identifiers, constants, and specials to accommodate programmer style. This 
+grammar does not include formal rules about whitespace because that would add immense clutter. 
 
+<procedure> ::=   procedure id is   <decl-seq>   begin   <stmt-seq>   end  |   procedure id is   begin   <stmt-seq>   end  <decl-seq> ::= <decl > | <decl><decl-seq> |   <function> | <function><decl-seq>  <stmt-seq> ::= <stmt> | <stmt><stmt-seq>  <decl> ::= <decl-integer> | <decl-obj>  <decl-integer> ::=   integer id   ;  <decl-obj> ::=   object id   ;  <function> ::=   procedure ID ( object   <parameters>   ) is   <stmt-seq>   end  <parameters> ::=   ID   |   ID ,   <parameters>  <stmt> ::= <assign> | <if> | <loop> | <print> | <read> | <decl> |   <call>  <call> ::=   begin   ID   (   <parameters>   ) ;  <assign> ::=   id =   <expr>   ;   |   id [   string   ] =   <expr>   ;   |   id = new object( string,   <expr>   );   |   id : id ;  <print> ::=   print   (   <expr>   )   ;  <read> ::=   read ( id ) ;  <if> ::=   if   <cond>   then   <stmt-seq>   end  |   if   <cond>   then   <stmt-seq>   else   <stmt-seq>   end  <loop> ::=   for (   id =   <expr>   ;   <cond>   ;   <expr>   )   do   <stmt-seq>   end  <cond> ::= <cmpr> |   not   <cond> |   [   <cond>   ]   | <cmpr>   or   <cond> | <cmpr>   and   <cond>  <cmpr> ::= <expr>   ==   <expr> | <expr>   <   <expr>  <expr> ::= <term> | <term>   +   <expr> | <term>   –   <expr>  <term> ::= <factor> | <factor>   *   <term> | <factor>   /   <term>  <factor> ::=   id   |   id [ string ]   |   const   |   (   <expr>   ) 5
