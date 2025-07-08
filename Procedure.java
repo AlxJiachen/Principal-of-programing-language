@@ -66,6 +66,7 @@ public void execute() {
 
     ss.execute();
 
+    Memory.reportGC();
     Memory.popFrame();
 }
 

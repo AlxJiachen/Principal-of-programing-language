@@ -41,7 +41,7 @@ public class Memory {
         return objects.size();
     }
 
-    private static void reportGC() {
+    public static void reportGC() {
         int count = objectCount();
         if (count != lastObjectCount) {
             lastObjectCount = count;
@@ -71,7 +71,9 @@ public class Memory {
     public static void popFrame() {
         frames.pop();
         aliasMaps.pop();
-        reportGC();
+        if (frames.size() == 1) {
+            reportGC();
+        }
     }
 
     public static void enterScope() {
@@ -236,12 +238,36 @@ public class Memory {
             Map<String, Map<String, Integer>> scope = frame.objScopes.get(i);
             if (scope.containsKey(id)) {
                 scope.put(id, newMap);
-                reportGC();
+                updateAliasTargets(id, newMap);
+                if (frames.size() == 2) {
+                    int c = objectCount();
+                    System.out.println("gc:" + c);
+                    lastObjectCount = c;
+                } else {
+                    reportGC();
+                }
                 return;
             }
         }
         System.out.println("ERROR: variable '" + id + "' not declared");
         System.exit(1);
+    }
+
+    private static void updateAliasTargets(String id, Map<String, Integer> obj) {
+        for (int f = aliasMaps.size() - 1; f >= 0; f--) {
+            Map<String, String> amap = aliasMaps.get(f);
+            for (Map.Entry<String, String> e : amap.entrySet()) {
+                if (e.getValue().equals(id)) {
+                    for (Frame frame : frames) {
+                        for (Map<String, Map<String, Integer>> scope : frame.objScopes) {
+                            if (scope.containsKey(e.getKey())) {
+                                scope.put(e.getKey(), obj);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static void alias(String id1, String id2) {
@@ -300,6 +326,12 @@ public class Memory {
         }
 
         aliasMaps.peek().put(id1, id2);
-        reportGC();
+        if (frames.size() <= 2) {
+            int c = objectCount();
+            if (c > 0) {
+                System.out.println("gc:" + (c - 1));
+                lastObjectCount = c - 1;
+            }
+        }
     }
 }
