@@ -1,10 +1,10 @@
 import java.io.IOException;
 import java.util.Map;
-import java.util.Scanner;
+
 
 public class Read implements Node {
     private String id;
-    private static final Scanner scanner = new Scanner(System.in); 
+
 
     @Override
     public void parse(CoreScanner s) throws IOException {
