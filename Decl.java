@@ -26,10 +26,13 @@ public void parse(CoreScanner s) throws IOException {
         System.out.println(type.name().toLowerCase() + " " + id + ";");
     }
 
-@Override
-public void semanticCheck(Map<String, Core> scope) {
-    scope.put(id, type);
-}
+    @Override
+    public void semanticCheck(Map<String, Core> scope) {
+        if (scope.containsKey(id)) {
+            throw new RuntimeException("Semantic Error: variable '" + id + "' already declared.");
+        }
+        scope.put(id, type);
+    }
 
 
 public void execute() {

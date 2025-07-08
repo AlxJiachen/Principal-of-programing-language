@@ -13,21 +13,65 @@ public class Memory {
     }
 
     private static final Stack<Frame> frames = new Stack<>();
+    private static final Stack<Map<String, String>> aliasMaps = new Stack<>();
 
     static {
         frames.push(new Frame());
+        aliasMaps.push(new HashMap<>());
     }
 
     private static Frame currentFrame() {
         return frames.peek();
     }
 
+    private static int lastObjectCount = 0;
+
+    private static int objectCount() {
+        java.util.Set<Map<String, Integer>> objects =
+            java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (Frame f : frames) {
+            for (Map<String, Map<String, Integer>> scope : f.objScopes) {
+                for (Map<String, Integer> obj : scope.values()) {
+                    if (obj != null) {
+                        objects.add(obj);
+                    }
+                }
+            }
+        }
+        return objects.size();
+    }
+
+    private static void reportGC() {
+        int count = objectCount();
+        if (count != lastObjectCount) {
+            lastObjectCount = count;
+            System.out.println("gc:" + count);
+        }
+    }
+
+    private static String resolveAliasName(String id) {
+        for (int f = aliasMaps.size() - 1; f >= 0; f--) {
+            Map<String, String> map = aliasMaps.get(f);
+            while (map.containsKey(id)) {
+                id = map.get(id);
+            }
+        }
+        return id;
+    }
+
+    public static void bindAlias(String formal, String actual) {
+        aliasMaps.peek().put(formal, resolveAliasName(actual));
+    }
+
     public static void pushFrame() {
         frames.push(new Frame());
+        aliasMaps.push(new HashMap<>());
     }
 
     public static void popFrame() {
         frames.pop();
+        aliasMaps.pop();
+        reportGC();
     }
 
     public static void enterScope() {
@@ -61,6 +105,7 @@ public class Memory {
     }
 
     public static int read(String id) {
+        id = resolveAliasName(id);
         for (int f = frames.size() - 1; f >= 0; f--) {
             Frame frame = frames.get(f);
             for (int i = frame.intScopes.size() - 1; i >= 0; i--) {
@@ -95,6 +140,7 @@ public class Memory {
     }
 
     public static int read(String id, String key) {
+        id = resolveAliasName(id);
         for (int f = frames.size() - 1; f >= 0; f--) {
             Frame frame = frames.get(f);
             for (int i = frame.objScopes.size() - 1; i >= 0; i--) {
@@ -115,6 +161,7 @@ public class Memory {
     }
 
     public static void write(String id, int value) {
+        id = resolveAliasName(id);
         for (int f = frames.size() - 1; f >= 0; f--) {
             Frame frame = frames.get(f);
             for (int i = frame.intScopes.size() - 1; i >= 0; i--) {
@@ -155,6 +202,7 @@ public class Memory {
     }
 
     public static void write(String id, String key, int value) {
+        id = resolveAliasName(id);
         for (int f = frames.size() - 1; f >= 0; f--) {
             Frame frame = frames.get(f);
             for (int i = frame.objScopes.size() - 1; i >= 0; i--) {
@@ -175,6 +223,7 @@ public class Memory {
     }
 
     public static void createObject(String id, String defaultKey, int value) {
+        id = resolveAliasName(id);
         Map<String, Integer> newMap = new HashMap<>();
         newMap.put(defaultKey, value);
 
@@ -184,9 +233,13 @@ public class Memory {
             System.exit(1);
         }
         scope.put(id, newMap);
+        reportGC();
     }
 
     public static void alias(String id1, String id2) {
+        id1 = resolveAliasName(id1);
+        id2 = resolveAliasName(id2);
+
         Map<String, Integer> target = null;
         boolean found = false;
 
@@ -195,9 +248,6 @@ public class Memory {
             for (int i = frame.objScopes.size() - 1; i >= 0; i--) {
                 Map<String, Map<String, Integer>> scope = frame.objScopes.get(i);
                 if (scope.containsKey(id2)) {
-                    if (f == frames.size() - 1 && i == frame.objScopes.size() - 1 && id1.equals(id2)) {
-                        continue;
-                    }
                     target = scope.get(id2);
                     found = true;
                     break;
@@ -211,12 +261,24 @@ public class Memory {
             System.exit(1);
         }
 
-        Map<String, Map<String, Integer>> scope = currentFrame().objScopes.peek();
-        if (!scope.containsKey(id1)) {
+        boolean set = false;
+        for (int f = frames.size() - 1; f >= 0 && !set; f--) {
+            Frame frame = frames.get(f);
+            for (int i = frame.objScopes.size() - 1; i >= 0; i--) {
+                Map<String, Map<String, Integer>> scope = frame.objScopes.get(i);
+                if (scope.containsKey(id1)) {
+                    scope.put(id1, target);
+                    set = true;
+                    break;
+                }
+            }
+        }
+        if (!set) {
             System.out.println("ERROR: variable '" + id1 + "' not declared");
             System.exit(1);
         }
 
-        scope.put(id1, target);
+        aliasMaps.peek().put(id1, id2);
+        reportGC();
     }
 }

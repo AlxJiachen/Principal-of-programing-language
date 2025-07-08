@@ -13,75 +13,40 @@ public class Cond implements Node {
     public void parse(CoreScanner s) throws IOException {
         Core t = s.currentToken();
 
-        if (t == null) {
-            cmpr = new Cmpr();
-            cmpr.parse(s);
-            Core next = s.currentToken();
-            if (next == null) {
-                type = Type.CMPR;
-            } else {
-                switch (next) {
-                    case OR:
-                        type = Type.OR;
-                        s.nextToken();
-                        cond2 = new Cond();
-                        cond2.parse(s);
-                        break;
-                    case AND:
-                        type = Type.AND;
-                        s.nextToken();
-                        cond2 = new Cond();
-                        cond2.parse(s);
-                        break;
-                    default:
-                        type = Type.CMPR;
-                        break;
+        switch (t) {
+            case NOT:
+                type = Type.NOT;
+                s.nextToken();
+                cond1 = new Cond();
+                cond1.parse(s);
+                break;
+
+            case LSQUARE:
+                type = Type.GROUP;
+                s.nextToken();
+                cond1 = new Cond();
+                cond1.parse(s);
+                Node.expectToken(s, Core.RSQUARE, "grouped condition");
+                break;
+
+            default:
+                cmpr = new Cmpr();
+                cmpr.parse(s);
+                Core next = s.currentToken();
+                if (next == Core.OR) {
+                    type = Type.OR;
+                    s.nextToken();
+                    cond2 = new Cond();
+                    cond2.parse(s);
+                } else if (next == Core.AND) {
+                    type = Type.AND;
+                    s.nextToken();
+                    cond2 = new Cond();
+                    cond2.parse(s);
+                } else {
+                    type = Type.CMPR;
                 }
-            }
-        } else {
-            switch (t) {
-                case NOT:
-                    type = Type.NOT;
-                    s.nextToken();
-                    cond1 = new Cond();
-                    cond1.parse(s);
-                    break;
-
-                case LSQUARE:
-                    type = Type.GROUP;
-                    s.nextToken();
-                    cond1 = new Cond();
-                    cond1.parse(s);
-                    Node.expectToken(s, Core.RSQUARE, "grouped condition");
-                    break;
-
-                default:
-                    cmpr = new Cmpr();
-                    cmpr.parse(s);
-                    Core next = s.currentToken();
-                    if (next == null) {
-                        type = Type.CMPR;
-                    } else {
-                        switch (next) {
-                            case OR:
-                                type = Type.OR;
-                                s.nextToken();
-                                cond2 = new Cond();
-                                cond2.parse(s);
-                                break;
-                            case AND:
-                                type = Type.AND;
-                                s.nextToken();
-                                cond2 = new Cond();
-                                cond2.parse(s);
-                                break;
-                            default:
-                                type = Type.CMPR;
-                                break;
-                        }
-                    }
-                    break;
-            }
+                break;
         }
     }
 

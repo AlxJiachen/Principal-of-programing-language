@@ -51,7 +51,7 @@ public class Function implements Node {
                 throw new RuntimeException("Semantic Error: duplicate formal parameter '" + p + "' in procedure " + name);
             }
         }
-        Map<String, Core> local = new HashMap<>();
+        Map<String, Core> local = new HashMap<>(scope);
         for (String p : params) {
             local.put(p, Core.OBJECT);
         }
@@ -67,8 +67,7 @@ public class Function implements Node {
         for (int i = 0; i < params.size(); i++) {
             String formal = params.get(i);
             String actual = args.get(i);
-            Memory.declareObject(formal);
-            Memory.alias(formal, actual);
+            Memory.bindAlias(formal, actual);
         }
         body.execute();
         Memory.popFrame();

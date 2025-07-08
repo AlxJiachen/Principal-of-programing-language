@@ -36,11 +36,11 @@ public void parse(CoreScanner s) throws IOException {
 
     @Override
     public void semanticCheck(Map<String, Core> scope) {
-        for (Function f : funcs) {
-            f.semanticCheck(new HashMap<>());
-        }
         for (Decl decl : decls) {
             decl.semanticCheck(scope);
+        }
+        for (Function f : funcs) {
+            f.semanticCheck(new HashMap<>(scope));
         }
     }
 
