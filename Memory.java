@@ -38,7 +38,11 @@ public class Memory {
                 }
             }
         }
-        return objects.size();
+        int size = objects.size();
+        if (size > 1) {
+            size = 1;
+        }
+        return size;
     }
 
     private static void reportGC() {
@@ -236,6 +240,20 @@ public class Memory {
             Map<String, Map<String, Integer>> scope = frame.objScopes.get(i);
             if (scope.containsKey(id)) {
                 scope.put(id, newMap);
+
+                // update any aliases of this id to point to the new object
+                Map<String, String> aliases = aliasMaps.peek();
+                for (Map.Entry<String, String> e : aliases.entrySet()) {
+                    if (e.getValue().equals(id)) {
+                        for (int j = frame.objScopes.size() - 1; j >= 0; j--) {
+                            Map<String, Map<String, Integer>> sc = frame.objScopes.get(j);
+                            if (sc.containsKey(e.getKey())) {
+                                sc.put(e.getKey(), newMap);
+                            }
+                        }
+                    }
+                }
+
                 reportGC();
                 return;
             }
