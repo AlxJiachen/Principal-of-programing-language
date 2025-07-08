@@ -328,9 +328,9 @@ public class Memory {
         aliasMaps.peek().put(id1, id2);
         if (frames.size() <= 2) {
             int c = objectCount();
-            if (c > 0) {
-                System.out.println("gc:" + (c - 1));
-                lastObjectCount = c - 1;
+            if (c >= 0 && c != lastObjectCount) {
+                System.out.println("gc:" + c);
+                lastObjectCount = c;
             }
         }
     }
