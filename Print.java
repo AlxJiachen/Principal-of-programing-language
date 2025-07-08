@@ -30,8 +30,9 @@ public class Print implements Node {
     }
 
 public void execute() {
-    int value = expr.execute();  
-    System.out.println(value);   
+    int value = expr.execute();
+    System.out.println(value);
+    Memory.flushDeferredGC();
 }
 
 }

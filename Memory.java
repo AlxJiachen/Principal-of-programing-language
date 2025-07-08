@@ -25,6 +25,8 @@ public class Memory {
     }
 
     private static int lastObjectCount = 0;
+    private static boolean deferredGC = false;
+    private static int deferredCount = 0;
 
     private static int objectCount() {
         java.util.Set<Map<String, Integer>> objects =
@@ -41,11 +43,19 @@ public class Memory {
         return objects.size();
     }
 
-    private static void reportGC() {
+    public static void reportGC() {
         int count = objectCount();
         if (count != lastObjectCount) {
             lastObjectCount = count;
             System.out.println("gc:" + count);
+        }
+    }
+
+    public static void flushDeferredGC() {
+        if (deferredGC) {
+            System.out.println("gc:" + deferredCount);
+            lastObjectCount = deferredCount;
+            deferredGC = false;
         }
     }
 
@@ -71,7 +81,6 @@ public class Memory {
     public static void popFrame() {
         frames.pop();
         aliasMaps.pop();
-        reportGC();
     }
 
     public static void enterScope() {
@@ -279,6 +288,17 @@ public class Memory {
         }
 
         aliasMaps.peek().put(id1, id2);
-        reportGC();
+        int count = objectCount();
+        if (target == null) {
+            if (count != lastObjectCount) {
+                deferredGC = true;
+                deferredCount = count;
+            }
+        } else {
+            if (count != lastObjectCount) {
+                lastObjectCount = count;
+                System.out.println("gc:" + count);
+            }
+        }
     }
 }

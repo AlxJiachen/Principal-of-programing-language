@@ -64,10 +64,12 @@ public void execute() {
         ds.execute();
     }
 
-    ss.execute();
+        ss.execute();
 
-    Memory.popFrame();
-}
+        Memory.popFrame();
+        Memory.flushDeferredGC();
+        Memory.reportGC();
+    }
 
 
 
